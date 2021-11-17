@@ -1,0 +1,41 @@
+
+tw.local.bpmExceptionEMail={};
+tw.local.bpmExceptionEMail.toAddress=String(tw.env.LOC_EMAIL);
+
+if(tw.local.action=="Add"){
+tw.local.bpmExceptionEMail.subject="Notification on EVMS location code (new)";
+   tw.local.emailBody = "<p style=font-family:'Calibri';font-size:14.5px>Dear Sir/Madam </p> "   
+   + "<p style=font-family:'Calibri';font-size:14.5px> A new location code had been added on  " +parseDate(new Date())+" by "+tw.local.userId+". Please update the phase information inside EVMS' \"Tableau CCTV & Non-CCTV Phase\" if it is required. "
+  +"<p style=font-family:'Calibri';font-size:14.5px> New location code: "+  tw.local.location.locationCode +" <br>"
+   +"Location description (70 chars):  "+ tw.local.location.locationLongDesc +"</p>"
+   
+   
+}
+if(tw.local.action=="Edit"){
+tw.local.bpmExceptionEMail.subject="Notification on EVMS location code (update)";
+var emailBody=""
+var startDate=tw.local.oldLocation.startDt?parseDate(tw.local.oldLocation.startDt):null;
+var endDate=tw.local.oldLocation.endDt?parseDate(tw.local.oldLocation.endDt):null
+   if(tw.local.oldLocation.locationLongDesc!=tw.local.location.locationLongDesc){
+		 emailBody=" Location Description: From "+ tw.local.oldLocation.locationLongDesc +" to "+ tw.local.location.locationLongDesc +"<br>" 
+	}
+	if(tw.local.oldLocation.locationShortDesc!=tw.local.location.locationShortDesc){
+		emailBody+=" Short Description: From "+ tw.local.oldLocation.locationShortDesc +" to "+ tw.local.location.locationShortDesc +"<br>"
+	}
+	if( (tw.local.oldLocation.startDt?parseDate(tw.local.oldLocation.startDt):null)!=parseDate(tw.local.location.startDt)){
+		emailBody+=" Start Date: From "+  startDate  +" to "+ parseDate(tw.local.location.startDt) +"<br>"
+	}
+	if((tw.local.oldLocation.endDt?parseDate(tw.local.oldLocation.endDt):null)!=parseDate(tw.local.location.endDt)){
+		emailBody+=" End Date: From "+  endDate  +" to "+ parseDate(tw.local.location.endDt) +" </p>"
+	}
+  tw.local.emailBody = "<p style=font-family:'Calibri';font-size:14.5px>Dear Sir/Madam </p> "   
+   + "<p style=font-family:'Calibri';font-size:14.5px> An existing location code had been edited on " +parseDate(new Date())+" by "+tw.local.userId+". Please update the phase information inside EVMS' \"Tableau CCTV & Non-CCTV Phase\" if it is required. "
+   +"<p style=font-family:'Calibri';font-size:14.5px>Location code edited: "+  tw.local.location.locationCode +"<br>"
+  +emailBody
+  
+}  
+
+ tw.local.emailBody = tw.local.emailBody +"<p style=font-family:'Calibri';font-size:14.5px>This email is auto-generated, please do not reply to this email.</p>";
+   
+tw.local.bpmExceptionEMail.messageText=tw.local.emailBody;
+
