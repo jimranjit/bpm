@@ -1,0 +1,179 @@
+var sql;
+
+if(!!tw.local.selectedInput) {
+	
+	for(var i=0; i< tw.local.selectedInput.listLength; i++) {
+		if(tw.local.selectedInput[i] == 'groupMigration') {
+		
+			sql = "select group_name groupName,display_name displayName, description from CTRL.GROUP_DETAILS" ;
+			
+			try{
+				tw.local.groupDetailsList = tw.system.createFromSql('GroupDetails_UM', 'jdbc/CIMBDB', sql);
+			} catch (e) {
+				log.error("Error in Fetching Group Details from DB. SQL : "+sql + "/n Error: "+e)
+			}
+		}
+		
+		if(tw.local.selectedInput[i] == 'subGroupMigration') {
+		
+			sql = "select group_name_sg groupNameSg,sub_group_name subGroupName from CTRL.SUBGROUP_DETAILS" ;
+			
+			try{
+				tw.local.subGroupList = tw.system.createFromSql('SubGroup_details_UM', 'jdbc/CIMBDB', sql);
+			} catch (e) {
+				log.error("Error in Fetching Sub Group Details from DB. SQL : "+sql + "/n Error: "+e)
+			}
+		}
+		
+		if(tw.local.selectedInput[i] == 'userMigration') {
+		
+			sql = "select group_name_ud groupNameUd,user_name userName from CTRL.user_details";
+			
+			try{
+				tw.local.userDetailsList = tw.system.createFromSql('UserDetails_UM', 'jdbc/CIMBDB', sql);
+			} catch (e) {
+				log.error("Error in Fetching User Details from DB. SQL : "+sql + "/n Error: "+e)
+			}
+		}
+	}
+
+}
+
+
+----------------------------------------------------------------------
+
+// Create group
+var roleName = "";
+var roleDisplayName = "";
+var roleDescription ="";
+var counter = 0;
+var limit;
+var migrationLimit = Number(tw.env.MigrationLimit);
+
+//Function to create Group
+function createGroup (groupDetailsList, counter) {
+	limit = groupDetailsList.length - counter > migrationLimit ?  counter + migrationLimit : groupDetailsList.length;
+	log.info("counter is " + counter);
+	log.info("Limit is " + limit);
+	
+	for(var i = counter ; i < limit ;i++){
+	    roleName = tw.local.groupDetailsList[i].groupName;
+	    roleDisplayName = tw.local.groupDetailsList[i].displayName;
+	    roleDescription =tw.local.groupDetailsList[i].description;
+	    if(!!!tw.system.org.findRoleByName(roleName)) {
+		    try{
+		        tw.system.org.createRole(roleName, roleDisplayName, roleDescription, true);
+		        //tw.system.org.removeRole(roleName, true)
+		        log.info("roleName = "+ roleName + " roleDisplayName = " +roleDisplayName + " roleDescription = " + roleDescription);
+		    }catch(e){
+		        log.error("Group Migration : Group '"+roleName+"'Creation-Mapping Error: "+e);
+		    }
+	    }
+	}
+	
+	return counter += migrationLimit;
+}
+
+
+
+if(!!tw.local.groupDetailsList && tw.local.groupDetailsList.listLength > 0) {
+	//Calculate the batch size based on the result
+	var batchSize = Math.ceil(tw.local.groupDetailsList.listLength / migrationLimit);
+	log.info("Batch Size is : "+ batchSize);
+	
+	for (var k = 0; k < batchSize; k++ ){
+		counter = createGroup(tw.local.groupDetailsList, counter); //calling the function
+	}
+}
+
+
+
+------------------------------------------------------------------------------
+// To Map group - subgroup in DB 
+
+var roleName = "";
+var subGroup = "";
+var counter = 0;
+var limit;
+var migrationLimit = Number(tw.env.MigrationLimit);
+
+//Function to add Sub Group
+function addGroup (subGroupDetailList, counter) {
+	limit = subGroupDetailList.length - counter > migrationLimit ?  counter + migrationLimit : subGroupDetailList.length;
+	log.info("counter is " + counter);
+	log.info("Limit is " + limit);
+	
+	for(var i = counter ; i < limit ;i++){
+	    roleName = tw.local.subGroupDetailList[i].groupNameSg;
+	    subGroup = tw.local.subGroupDetailList[i].subGroupName;
+	    log.info("roleName = "+ roleName + " subGroup = "+ subGroup);
+	     try{
+	        tw.system.org.findRoleByName(roleName).addRoles(subGroup);
+	        log.info("roleName = "+ roleName + " subGroup = " +subGroup);
+	    }catch(error){
+	        log.error("Sub Group Migration : roleName =  '"+roleName+"'Creation-Mapping Error: "+error);
+	    }
+	}
+	
+	return counter += migrationLimit;
+}
+
+
+
+if(!!tw.local.subGroupDetailList && tw.local.subGroupDetailList.listLength > 0) {
+	//Calculate the batch size based on the result
+	var batchSize = Math.ceil(tw.local.subGroupDetailList.listLength / migrationLimit);
+	log.info("Batch Size is : "+ batchSize);
+	
+	for (var k = 0; k < batchSize; k++ ){
+		counter = addGroup(tw.local.subGroupDetailList, counter); //calling the function
+	}
+}
+
+
+
+--------------------------------------------------------------------------
+// To map the users to respective roles
+
+var roleName = "";
+var userName = "";
+var counter = 0;
+var limit;
+var migrationLimit = Number(tw.env.MigrationLimit)
+
+//Function to add users to groups
+function addUsers (userDetailList, counter) {
+	limit = userDetailList.length - counter > migrationLimit ?  counter + migrationLimit : userDetailList.length;
+	log.info("counter is " + counter);
+	log.info("Limit is " + limit);
+	
+	for(var i = counter ; i < limit ;i++){
+	    roleName = tw.local.userDetailList[i].groupNameUd;
+	    userName = tw.local.userDetailList[i].userName;
+	    try{
+	        tw.system.org.findRoleByName(roleName).addUsers(userName);
+	        log.info("roleName = "+ roleName + " userName = "+ userName);
+	        
+	    }catch(error){
+	        log.error("User not synced or User not found. Username : "+userName);
+	        log.error("User Mapping Error : "+error);
+	    }
+	}
+	
+	return counter += migrationLimit;
+}
+
+
+
+if(!!tw.local.userDetailList && tw.local.userDetailList.listLength > 0) {
+	//Calculate the batch size based on the result
+	var batchSize = Math.ceil(tw.local.userDetailList.listLength / migrationLimit);
+	log.info("Batch Size is : "+batchSize);
+	
+	for (var k = 0; k < batchSize; k++ ){
+		counter = addUsers(tw.local.userDetailList, counter); //calling the function
+	}
+}
+
+
+
