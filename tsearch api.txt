@@ -1,0 +1,117 @@
+//function to parse date - yyyy-MMM-dd hh:mm:ss
+function parseDate(dueDate){
+	var dateArr  = dueDate != null ? dueDate.split(" ") : "";
+	var value = "";
+	if(dateArr !=  null && dateArr.length > 0)
+		value = dateArr[5] + "-" + dateArr[1] +"-" + dateArr[2] + " " + dateArr[3];	
+	return value;
+}
+
+//var role = tw.system.org.findParticipantGroupByName("All Users");
+var user = tw.system.org.findUserByName(tw.local.userId);
+
+//Initiate TWSearch
+var search = new TWSearch();
+
+// Define search Columns
+var processApp = new TWSearchColumn();
+processApp.type = TWSearchColumn.Types.ProcessInstance;
+processApp.name = TWSearchColumn.ProcessInstanceColumns.ProcessApp;
+
+var colInstanceId = new TWSearchColumn();
+colInstanceId.type = TWSearchColumn.Types.ProcessInstance;
+colInstanceId.name = TWSearchColumn.ProcessInstanceColumns.ID;
+
+var instanceName = new TWSearchColumn();
+instanceName.type = TWSearchColumn.Types.ProcessInstance;
+instanceName.name = TWSearchColumn.ProcessInstanceColumns.Name;
+
+var taskSubject = new TWSearchColumn();
+taskSubject.type = TWSearchColumn.Types.Task;
+taskSubject.name = TWSearchColumn.TaskColumns.Subject;
+
+var taskStatus = new TWSearchColumn();
+taskStatus.type = TWSearchColumn.Types.Task;
+taskStatus.name = TWSearchColumn.TaskColumns.Status
+
+var taskDueDate = new TWSearchColumn();
+taskDueDate.type = TWSearchColumn.Types.Task;
+taskDueDate.name = TWSearchColumn.TaskColumns.DueDate;
+
+var taskId = new TWSearchColumn();
+taskId.type = TWSearchColumn.Types.Task;
+taskId.name = TWSearchColumn.TaskColumns.ID;
+
+var accNumber = new TWSearchColumn();
+accNumber.type = TWSearchColumn.Types.BusinessData;
+accNumber.name = "MV_ACCOUNT_NUMBER";
+
+var nric = new TWSearchColumn();
+nric.type = TWSearchColumn.Types.BusinessData;
+nric.name = "MV_NRIC_ID";
+
+//Include search columns in search variable
+search.columns = new Array(colInstanceId, instanceName, taskSubject, taskStatus, taskDueDate, accNumber, nric, taskId);
+
+//Define Search Conditions
+var processAppCond = new TWSearchCondition();
+processAppCond.column = processApp;
+processAppCond.operator = TWSearchCondition.Operations.Equals;
+processAppCond.value = "TCJOCTO";
+
+//var taskNameCond = new TWSearchCondition();
+//taskNameCond.column = taskSubject;
+//taskNameCond.operator = TWSearchCondition.Operations.Contains;
+//taskNameCond.value = "Agent, Lead, Name";
+
+var taskStatusCond = new TWSearchCondition();
+taskStatusCond.column = taskStatus;
+taskStatusCond.operator = TWSearchCondition.Operations.Equals;
+taskStatusCond.value = "Received";
+
+//Include search conditions in search variable
+search.conditions = new Array(processAppCond, taskStatusCond);
+
+//Define search ordering
+//var orderInstanceId = new TWSearchOrdering();
+//orderInstanceId.column = colInstanceId;
+//orderInstanceId.order = TWSearchOrdering.Orders.Ascending;
+
+var ordertaskName = new TWSearchOrdering();
+ordertaskName.column = taskSubject;
+ordertaskName.order = TWSearchOrdering.Orders.Ascending;
+
+var ordertaskDueDate = new TWSearchOrdering();
+ordertaskDueDate.column = taskDueDate;
+ordertaskDueDate.order = TWSearchOrdering.Orders.Descending;
+
+//Include search ordering in search variable
+search.orderBy = new Array(ordertaskName, ordertaskDueDate);
+
+//Organize by Tasks
+search.organizedBy = TWSearch.OrganizeByTypes.Task;
+
+//Execute Search
+var results = search.execute(user, Number(tw.env.TWSearchLimit));
+//log.info(results);
+
+//Parse the results into BO
+tw.local.taskResult = [];
+
+if(results!= null && results.rows != null && results.rows.length > 0) {
+	for (var i=0; i< results.rows.length; i++){
+		var row = results.rows[i];
+		tw.local.taskResult[i] = {};
+		tw.local.taskResult[i].instanceId = row.values[0] != null ? row.values[0].toString() : "";
+		tw.local.taskResult[i].instanceName = row.values[1] != null ? row.values[1].toString() : "";
+		tw.local.taskResult[i].taskName = row.values[2] != null ? row.values[2].toString() : "";
+		tw.local.taskResult[i].taskStatus = row.values[3] != null ? row.values[3].toString() : "";
+		//var dueDate = row.values[4] != null ? row.values[4].toString() : "";
+		//tw.local.taskResult[i].taskDueDate = parseDate(dueDate);
+		var dueDate = row.values[4] != null ? row.values[4] : "";
+		tw.local.taskResult[i].taskDueDate = !!dueDate ? dueDate : null;
+		tw.local.taskResult[i].accountNbr = row.values[5] != null ? row.values[5].toString() : "";
+		tw.local.taskResult[i].nricNbr = row.values[6] != null ? row.values[6].toString() : "";
+		tw.local.taskResult[i].taskId = row.values[7] != null ? row.values[7].toString() : "";
+	}
+}
