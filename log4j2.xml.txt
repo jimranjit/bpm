@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="Info">
+    <Appenders>
+     <RollingFile  name="Log4jOut" fileName="InfoLogs/Log4jOut.log"  append="true" filePattern="InfoLogs/Log4jOut_%d{yyyy'.'MM'.'dd'_'hh'.'mm'.'ss}.log">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+            <SizeBasedTriggeringPolicy size="5MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>
+        <RollingFile  name="RPAFile" fileName="InfoLogs/RPALogs/RPAInfo.log"  append="true" filePattern="InfoLogs/RPALogs/RPAInfo_%d{yyyy'.'MM'.'dd'_'hh'.'mm'.'ss}.log">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+            <SizeBasedTriggeringPolicy size="5MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>
+         <RollingFile  name="GPAFile" fileName="InfoLogs/GPALogs/GPAInfo.log"  append="true" filePattern="InfoLogs/GPALogs/GPAInfo_%d{yyyy'.'MM'.'dd'_'hh'.'mm'.'ss}.log">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+            <SizeBasedTriggeringPolicy size="5MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>
+		<RollingFile  name="TPCFile" fileName="InfoLogs/TPCLogs/TPCInfo.log"  append="true" filePattern="InfoLogs/TPCLogs/TPCInfo_%d{yyyy'.'MM'.'dd'_'hh'.'mm'.'ss}.log">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+            <SizeBasedTriggeringPolicy size="5MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>        
+        <RollingFile  name="RPAErrFile" fileName="InfoLogs/RPALogs/RPAErrFile.log"  append="true" filePattern="InfoLogs/RPALogs/RPAErr_%d{yyyy'.'MM'.'dd'_'hh'.'mm'.'ss}.log">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+            <SizeBasedTriggeringPolicy size="5MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>
+        <RollingFile  name="GPAErrFile" fileName="InfoLogs/GPALogs/GPAErrFile.log"  append="true" filePattern="InfoLogs/GPALogs/GPAErr_%d{yyyy'.'MM'.'dd'_'hh'.'mm'.'ss}.log">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+            <SizeBasedTriggeringPolicy size="5MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>
+		 <RollingFile  name="TPCErrFile" fileName="InfoLogs/TPCLogs/TPCErrFile.log"  append="true" filePattern="InfoLogs/TPCLogs/TPCErr_%d{yyyy'.'MM'.'dd'_'hh'.'mm'.'ss}.log">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+            <SizeBasedTriggeringPolicy size="5MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Root level="fatal">
+            <AppenderRef ref="Log4jOut" />
+        </Root>
+        <logger name="TPCLogger" level="Info">
+            <AppenderRef ref="TPCFile"/>
+        </logger>
+        <logger name="TPCErrLogger" level="error">
+            <AppenderRef ref="TPCErrFile"/>
+        </logger>
+		<logger name="RPALogger" level="Info">
+            <AppenderRef ref="RPAFile"/>
+        </logger>
+        <logger name="RPAErrLogger" level="error">
+            <AppenderRef ref="RPAErrFile"/>
+        </logger>
+        <logger name="GPALogger" level="Info">
+            <AppenderRef ref="GPAFile"/>
+        </logger>
+        <logger name="GPAErrLogger" level="error">
+            <AppenderRef ref="GPAErrFile"/>
+        </logger>
+    </Loggers>
+</Configuration>
