@@ -1,0 +1,64 @@
+//function to generate list of MIDs
+const generateMID = (MID, numOfMID, validMIDList = []) => {
+  while (validMIDList.length < numOfMID) {
+    const FIXED_NUMBER = "2468135790";
+    const MIDList = MID.split("");
+    const fixList = FIXED_NUMBER.split("");
+
+    //calculate sum off odd number and even number
+    const [oddSum, evenSum] = MIDList.reduce(
+      ([oddSum, evenSum], cur, i) =>
+        i % 2 !== 0 && Number(cur) > 0
+          ? [oddSum, evenSum + Number(fixList[Number(cur) - 1])]
+          : [oddSum + Number(cur), evenSum],
+      [0, 0]
+    );
+
+    //calculate total sum
+    const totalSum = evenSum + oddSum;
+    console.log("Total Sum: " + totalSum);
+
+    //if the last digit of total sum is 0, push it to validMIDList array
+    if (totalSum > 0 && totalSum % 10 === 0) {
+      console.log("Hurray! Valid MID is found");
+      //append 000001 to MID
+      const validMid = "000001" + MID;
+      validMIDList.push(validMid);
+    }
+
+    //check range and increment MID by 1. If range is exceeded return from the function
+    const [newMID, isValidRange] = plusOne(MID);
+    if (isValidRange) {
+      MID = newMID;
+    } else {
+      console.log("Alas! Exceeded the range.");
+      return validMIDList;
+    }
+  } //loop ends
+
+  return validMIDList;
+};
+
+//function to increment MID by 1
+const plusOne = (MID) => {
+  const range = 99999;
+  //take the last 5 digits of MID and increment by 1
+  const nextMID = Number(MID.substr(4)) + 1;
+  //check for valid range
+  let isValidRange;
+  let newMID = MID.substr(0, MID.length - `${nextMID}`.length) + String(nextMID);
+  nextMID < range ? (isValidRange = true) : (isValidRange = false);
+
+  return [newMID, isValidRange];
+};
+
+//const MID = "000000184020014";
+const validMIDList = generateMID("224014944", 1);
+
+//loop through the valid MID List and print each element
+validMIDList.forEach((el) => {
+  console.log(el);
+});
+
+//length of the valid MID List
+console.log(validMIDList.length);
