@@ -1,0 +1,57 @@
+<!-- Preloader using HTML and CSS-->
+
+<style>
+.preloader{
+	position: fixed;
+	width:	100%;
+	height: 100%;
+	z-index: 1001;
+	background-color: #ffffff;
+	opacity: 0.7;
+	top: 0px;
+	right: 0px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.preloader img{
+	margin: 0;
+	width: 70px;
+	height: auto;
+}
+
+.preloader_hide {
+    position: fixed;
+    display: none;
+    visibility: hidden;
+}
+
+/* Below 2 css classes are for BPM default loading spinner*/
+.progressIconClass{
+	width:	100%;
+	height: 100%;
+	z-index: 99;
+	background-color: #ffffff;
+	opacity: 0.7;
+	top: 0px;
+	right: 0px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.progressIconClass img{
+	margin: 0;
+}
+
+</style>
+
+<div class = "preloader">
+	<img src = "" id = "preloaderImg" alt="preloading">
+</div>
+
+<script>
+	let preload = document.getElementById("preloaderImg");
+	preload.src = com_ibm_bpm_coach.getManagedAssetUrl("loading_spinner.gif", com_ibm_bpm_coach.assetType_WEB, "TCJOCTO");
+</script>
